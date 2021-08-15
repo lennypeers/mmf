@@ -1,0 +1,4 @@
+KERNEL=="applesmc.768", SUBSYSTEM=="platform", \
+DRIVER=="applesmc", ACTION=="add", \
+RUN+="/bin/chgrp users /sys/%p/fan1_manual /sys/%p/fan1_output", \
+RUN+="/bin/chmod g+w /sys/%p/fan1_manual /sys/%p/fan1_output"
