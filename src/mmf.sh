@@ -1,7 +1,6 @@
 #!/bin/bash
 
-hwmon=/sys/devices/platform/applesmc.768
-readonly VERSION=0.2
+readonly VERSION=0.2.1 hwmon=/sys/devices/platform/applesmc.768
 
 usage() {
   cat << EOF
@@ -9,10 +8,13 @@ Usage: ${0##*/} <cmd>
 Fan speed control utility
 Available commands:
 SPEED                  set the fan at SPEED rpm
+                       SPEED between 0 and 6500
 -t, --toggle, toggle   toggle manual speed
 -v, --version          display misc infos
 -h, --help             show this message
 EOF
+
+exit ${1:-0}
 }
 
 infos() {
@@ -30,26 +32,34 @@ toggle() {
     tmp=0
   fi
 
-  echo ${tmp:=1} | tee ${hwmon}/fan1_manual
+  echo $tmp > ${hwmon}/fan2_manual
+  echo ${tmp:=1} > ${hwmon}/fan1_manual || return 1
 
-  if [[ -e ${hwmon}/fan2_manual ]]; then
-    echo ${tmp:=1} | tee ${hwmon}/fan2_manual
-  fi
+  echo $tmp # so the user knows the current state
 }
 
-write() {
-    echo 1 > ${hwmon}/fan1_manual
-    echo ${1/k/000} > ${hwmon}/fan1_output
+write_control() {
+  echo "$1" > ${hwmon}/fan2_manual
+  echo "$1" > ${hwmon}/fan1_manual || return 1
+}
 
-    if [[ -e ${hwmon}/fan2_output ]]; then
-      echo 1 > ${hwmon}/fan2_manual
-      echo ${1/k/000} > ${hwmon}/fan2_output
-    fi
+write_speed() {
+  echo $1 > ${hwmon}/fan2_output
+  echo $1 > ${hwmon}/fan1_output || return 1
+}
+
+error_perms() {
+  cat >&2 << EOF
+Cannot write to devices.
+If freshly installed reboot to run the udev rules.
+Else, wtf?
+EOF
+  exit 3
 }
 
 case $1 in
   -t | --toggle | toggle)
-    toggle
+    toggle 2>/dev/null || error_perms
   ;;
 
   -h | --help)
@@ -58,17 +68,19 @@ case $1 in
 
   -v | --version)
     infos
-    exit 0
   ;;
 
-  "")
-    usage >&2
-    exit 1
+  -a | --auto)
+    write_control 0  2>/dev/null || error_perms
   ;;
 
-  # hum assuming it is a digit lol
-  *)
-    write "${1/k/000}"
+  -m | --manual)
+    write_control 1  2>/dev/null || error_perms
+  ;;
+
+  *) # SPEED
+    write_control 1  2>/dev/null || error_perms
+    write_speed "$1" 2>/dev/null || usage 1 >&2
   ;;
 esac
 
