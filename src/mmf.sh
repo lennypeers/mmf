@@ -1,6 +1,6 @@
 #!/bin/bash
 
-readonly VERSION=0.2.1 hwmon=/sys/devices/platform/applesmc.768
+readonly VERSION=0.2.2 hwmon=/sys/devices/platform/applesmc.768
 
 usage() {
   cat << EOF
@@ -9,12 +9,14 @@ Fan speed control utility
 Available commands:
 SPEED                  set the fan at SPEED rpm
                        SPEED between 0 and 6500
+-a, --auto             set the fan in auto control
+-m, --manual           set the fan in manual control
 -t, --toggle, toggle   toggle manual speed
 -v, --version          display misc infos
 -h, --help             show this message
 EOF
 
-exit ${1:-0}
+  exit ${1:-0}
 }
 
 infos() {
