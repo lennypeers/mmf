@@ -15,7 +15,7 @@ jobs:
         useradd builduser -m
         passwd -d builduser
         pacman -Syu --noconfirm --needed sudo base-devel
-        echo 'builduser ALL=(ALL) ALL\n' >> /etc/sudoers
+        echo -e 'builduser ALL=(ALL) ALL\n' >> /etc/sudoers
         chown -R builduser:builduser ./
         sudo -u builduser bash -c 'makepkg -si --noconfirm'
         EOF
