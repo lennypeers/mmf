@@ -1,4 +1,4 @@
-# Maintainer: lennypeers <lennypeers+git at protonmail>
+# Maintainer: lennypeers <lennypeers+git at gmail>
 pkgname=mmf
 pkgver=0.2.2
 pkgrel=1
