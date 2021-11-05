@@ -1,6 +1,6 @@
 # Maintainer: lennypeers <lennypeers+git at gmail>
 pkgname=mmf
-pkgver=0.2.2
+pkgver=0.2.3
 pkgrel=1
 pkgdesc="manual mac fan"
 arch=(x86_64)

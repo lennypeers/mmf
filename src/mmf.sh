@@ -1,6 +1,6 @@
 #!/bin/bash
 
-readonly VERSION=0.2.2 hwmon=/sys/devices/platform/applesmc.768
+readonly VERSION=0.2.3 hwmon=/sys/devices/platform/applesmc.768
 
 usage() {
   cat << EOF
@@ -14,6 +14,8 @@ SPEED                  set the fan at SPEED rpm
 -t, --toggle, toggle   toggle manual speed
 -v, --version          display misc infos
 -h, --help             show this message
+-i, --inc N            increase of N (integer)
+-d, --dec N            decrease of N (integer)
 EOF
 
   exit ${1:-0}
@@ -78,6 +80,22 @@ case $1 in
 
   -m | --manual)
     write_control 1  2>/dev/null || error_perms
+  ;;
+
+  -i | --inc)
+    shift
+    val="$1" l=$(cat ${hwmon}/fan1_output)
+    l=$((l+val))
+    write_control 1  2>/dev/null || error_perms
+    write_speed "$l" 2>/dev/null || usage 1 >&2
+  ;;
+
+  -d | --dec)
+    shift
+    val="$1" l=$(cat ${hwmon}/fan1_output)
+    l=$((l-val))
+    write_control 1  2>/dev/null || error_perms
+    write_speed "$l" 2>/dev/null || usage 1 >&2
   ;;
 
   *) # SPEED
